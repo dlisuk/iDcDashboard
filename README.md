@@ -5,7 +5,11 @@ This is a repository for my UCDS MS project.  I will keep a small journal of wha
 
 The goal of the project is to create an interactive data visualization framework within iPython to ease visual analysis of large data sets.  In particular I will connect the Pandas data frame to dc.js.
 
-**September 9 2014**
+**September 19 2014**
+
+  Today I got a scatter plot working using dc.js.  Additionally I hacked around with crossfilter/dc to figure out how to add a drop down menu which lets you choose a column to use for the x/y axis of the scatter plot. I also tried to work a static scatter plot into a ipython widget but it appears I still need to understand the widget interface quite a bit better.  It is based in jQuery so my next step is to learn jQuery sufficiently to debug the problems i'm seeing.
+
+**September 18 2014**
 
   Today I learned about dc.js/crossfilter/d3.js.  Following tutorials from [codeproject](http://www.codeproject.com/Articles/693841/Making-Dashboards-with-Dc-js-Part-1-Using-Crossfil), I created a basic crossfilter data set feeding a dc/d3 visaul dash board.  Unlike our previous belief it turns out crossfilter is purely a client side data structure.  I believe that this is ok since it can be used to hold the data set locally for visaulization purposes.  
   
