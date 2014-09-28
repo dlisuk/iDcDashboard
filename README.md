@@ -5,6 +5,10 @@ This is a repository for my UCDS MS project.  I will keep a small journal of wha
 
 The goal of the project is to create an interactive data visualization framework within iPython to ease visual analysis of large data sets.  In particular I will connect the Pandas data frame to dc.js.
 
+**September 28 2014**
+  Today I built a dashboard widget capable which takes configureation to create a set of cross filter backed scatter plots from a single data frame.  Basic layout controls are availible by creating new "layers", or rows of plots and controlling the size of plots.  Further extension via adding new plot types/such should be easy.
+ 
+
 **September 26 2014**
 
   Today I got a working scatter plot using dc/crossfilter in an iPython notebook widget.  Based on the [Handson Table Widget Example](http://nbviewer.ipython.org/gist/rossant/9463955) I was able to construct a widget that sends a data frame from python -> java script cross filter, creates the dc ploting div and then renders it.  Currently it statically creates a single scatter plot with an x/y axis specified at construction time.  The notebook which demonstates this is availible on [Github](https://github.com/dlisuk/masters_project/blob/master/test_pages/Scatter%20Widget%20Test.ipynb) and viewable on [NBViewer](http://nbviewer.ipython.org/github/dlisuk/masters_project/blob/master/test_pages/Scatter%20Widget%20Test.ipynb); however, nbviewer cannot display widgets so it is recomended you download the file.
