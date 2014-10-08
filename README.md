@@ -5,6 +5,9 @@ This is a repository for my UCDS MS project.  I will keep a small journal of wha
 
 The goal of the project is to create an interactive data visualization framework within iPython to ease visual analysis of large data sets.  In particular I will connect the Pandas data frame to dc.js.
 
+**October 8 2014**
+Wrote a setup guide to install the java script libraries needed to run.
+
 **September 28 2014**
   Today I built a dashboard widget capable which takes configureation to create a set of cross filter backed scatter plots from a single data frame.  Basic layout controls are availible by creating new "layers", or rows of plots and controlling the size of plots.  Further extension via adding new plot types/such should be easy.
  
