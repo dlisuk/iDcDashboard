@@ -5,6 +5,11 @@ This is a repository for my UCDS MS project.  I will keep a small journal of wha
 
 The goal of the project is to create an interactive data visualization framework within iPython to ease visual analysis of large data sets.  In particular I will connect the Pandas data frame to dc.js.
 
+**October 21 2014**
+
+Got two way communication working.  Using set_data and set_layout on the widget will now erase the current data/layout and replace it with new values.
+The displayed dashboard will be updated to account for the changes in data.
+
 **October 14 2014**
 
 Created python module capable of being imported into any notebook.  No longer needs modifications to the custom.js files to run (all libraries are now imported from a cdn).

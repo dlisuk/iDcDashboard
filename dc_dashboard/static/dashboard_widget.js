@@ -1,62 +1,61 @@
-require('//cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.11/crossfilter.min.js');
+require(['//cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.11/crossfilter.min.js']);
+    require(["//cdnjs.cloudflare.com/ajax/libs/d3/3.4.1/d3.min.js",
+             "//cdnjs.cloudflare.com/ajax/libs/dc/2.0.0-alpha.2/dc.min.js",
+            "widgets/js/widget",
+            "widgets/js/manager"],
+            function(d3, dc, widget, WidgetManager){
+                var dashboard_id = 0;
 
-require(["//cdnjs.cloudflare.com/ajax/libs/d3/3.4.1/d3.min.js",
-         "//cdnjs.cloudflare.com/ajax/libs/dc/2.0.0-alpha.2/dc.min.js",
-        "widgets/js/manager"],
-        function(d3, dc, WidgetManager){
-            var dashboard_id = 0;
+                var plot_funs = {};
 
-            var plot_funs = {
-                scatter:{
-                    render:function(target, conf, dim, group){
-                        //var dim_min = eval("dim.bottom(1)[0]." + conf.x) * 0.9;
-                        //var dim_max = eval("dim.top(1)[0]." + conf.x) * 1.1;
+                $$INSERT$$
 
-                        var plot = dc.scatterPlot(target, $(target).attr('render_group'));
-                        plot
-                            .dimension(dim).group(group).x(d3.scale.linear())
-                            .elasticX(true)
-                            .xAxisLabel(conf.x).yAxisLabel(conf.y);
-                        return plot;
+                var DashboardView = IPython.DOMWidgetView.extend({
+                    render: function(){
+                        //Here we construct the data stores
+                        this.cf   = crossfilter([]);
+                        this.filters = {};
+                        this.dims    = [];
+                        this.charts  = [];
+                        this.render_group = 'dashboard_' + (dashboard_id++);
+                        this.set_layout();
+                        this.set_data();
 
-                    },
-                    make_dim:function(cf, conf){
-                        var dim_f = function(d) { return  eval("[d." + conf.x +" , d." + conf.y + "]");};
-                        return cf.dimension(dim_f);
-                    },
-                    make_group:function(dim, conf){
-                        return dim.group();
-                    },
-                    proc_filter:function(filter, conf){
-                        if(filter == null){
-                            return [];
-                        }else{
-                            return [[conf.x, filter[0][0], filter[1][0]],[conf.y, filter[0][1], filter[1][1]]];
-                        }
-                    }
-                }
-            };
+                        this.model.on('change:data', this.set_data, this);
+                        this.model.on('change:layout', this.set_layout, this);
+                },
 
-            var DashboardView = IPython.DOMWidgetView.extend({
-                render: function(){
-                    //Here we construct the data stores
-                    this.cf   = crossfilter([]);
-                    var cf    = this.cf;
-                    this.filters = {};
+                set_data:function(){
+                    alert("Set Data" + this.render_group);
+                    //First we remove old data from cross filter and add new data
+                    this.dims.forEach(function(dim){dim.filter(null);});
+                    this.cf.remove();
+                    //Now we refresh the filters applied to all dc charts
+                    this.charts.forEach(function(chart){
+                        var oldFilters = chart.filters();
+                        chart.filter(null);
+                        oldFilters.forEach(function(filter){
+                            chart.filter(filter);
+                        });
+                    });
 
-                    this.model.set("filters",JSON.stringify([]));
-                    this.touch();
-                    //Now begin rendering code
-                    this.render_group = 'dashboard_' + (dashboard_id++);
-                    var render_group  = this.render_group;
+                    var df = $.parseJSON(this.model.get('data'));
+                    this.cf.add(df);
+                    dc.redrawAll();
+                },
 
+                set_layout:function(){
+                    alert("Set Layout" + this.render_group);
+                    //Clean up existing layout
+                    this.dims.forEach(function(dim){dim.dispose();});
+                    this.charts = [];
                     var $root = this.$el;
-
-                    var $layer = null;
-                    var layer_h = null;
+                    $root.empty();
 
                     var layout = $.parseJSON(this.model.get('layout'));
                     var this_obj = this;
+                    var $layer = null;
+                    var layer_h = null;
 
                     for(var i in layout){
                         var plot_conf = layout[i];
@@ -65,15 +64,16 @@ require(["//cdnjs.cloudflare.com/ajax/libs/d3/3.4.1/d3.min.js",
                             layer_h = plot_conf.height;
                         }else{
                             var $plot_area = $('<div />')
-                                .attr('id', render_group + "_plot_" + i)
-                                .attr('render_group', render_group)
+                                .attr('id', this_obj.render_group + "_plot_" + i)
+                                .attr('render_group', this_obj.render_group)
                                 .appendTo($layer);
 
 
                             var plotting_obj = plot_funs[plot_conf.type];
 
                             //Make cf objects
-                            var dim          = plotting_obj.make_dim(cf, plot_conf);
+                            var dim          = plotting_obj.make_dim(this_obj.cf, plot_conf);
+                            this.dims.push(dim);
                             var group        = plotting_obj.make_group(dim, plot_conf);
 
                             var plot         = plotting_obj.render($plot_area[0], plot_conf, dim, group);
@@ -87,24 +87,12 @@ require(["//cdnjs.cloudflare.com/ajax/libs/d3/3.4.1/d3.min.js",
                                         }, 1000);
                                     });
                             })(plotting_obj.proc_filter, $plot_area[0], plot_conf);
+                            this.charts.push(plot);
                         }
                     }
-                    this.append_data();
                     dc.renderAll(this.render_group);
                 },
 
-                replace_data:function(){
-                    this.remove_data();
-                    this.append_data();
-                },
-                remove_data:function(){
-                    this.data   = [];
-                },
-                append_data:function(){
-                    var data = $.parseJSON(this.model.get('data'));
-                    this.cf.add(data);
-                    dc.renderAll(this.render_group);
-                },
                 update_filter:function(plot_id, filter){
                     dc.redrawAll(this.render_group);
                     this.filters[plot_id] = filter;
@@ -116,6 +104,7 @@ require(["//cdnjs.cloudflare.com/ajax/libs/d3/3.4.1/d3.min.js",
                     this.model.set("filters",JSON.stringify(filters_deduped));
                     this.touch();
                 }
+
             });
 
             // Register the DashboardView with the widget manager.
