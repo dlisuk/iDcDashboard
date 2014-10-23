@@ -15,7 +15,6 @@ def load_plots():
     with open(DASHBOARD_STATIC_FILES_PATH + "/dashboard_widget.js", 'r') as f:
         code = f.read()
         code = code.replace("$$INSERT$$", "\n".join(lib_code))
-        print code
         display(Javascript(code))
 
 

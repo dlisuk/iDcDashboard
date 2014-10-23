@@ -8,7 +8,7 @@ require(['//cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.11/crossfilter.min.js
 
                 var plot_funs = {};
 
-                $$INSERT$$
+ $$INSERT$$
 
                 var DashboardView = IPython.DOMWidgetView.extend({
                     render: function(){
@@ -26,7 +26,6 @@ require(['//cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.11/crossfilter.min.js
                 },
 
                 set_data:function(){
-                    alert("Set Data" + this.render_group);
                     //First we remove old data from cross filter and add new data
                     this.dims.forEach(function(dim){dim.filter(null);});
                     this.cf.remove();
@@ -40,12 +39,12 @@ require(['//cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.11/crossfilter.min.js
                     });
 
                     var df = $.parseJSON(this.model.get('data'));
-                    this.cf.add(df);
+                    var data = eval(this.model.get('preproc'))(df);
+                    this.cf.add(data);
                     dc.redrawAll();
                 },
 
                 set_layout:function(){
-                    alert("Set Layout" + this.render_group);
                     //Clean up existing layout
                     this.dims.forEach(function(dim){dim.dispose();});
                     this.charts = [];

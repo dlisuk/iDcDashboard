@@ -6,3 +6,4 @@ class DashboardWidget(widgets.DOMWidget):
     layout     = Unicode("[]", sync=True)
     data       = Unicode("[]", sync=True)
     filters    = Unicode("[]", sync=True)
+    preproc    = Unicode("(function(data) {return data;})", sync=True)

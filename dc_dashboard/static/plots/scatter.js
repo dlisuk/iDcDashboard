@@ -1,10 +1,12 @@
 plot_funs.scatter =  {
     render:function(target, conf, dim, group){
+        //var min = eval("dim.bottom(1)[0]." + conf.x);
+        //var max = eval("dim.top(1)[0]." + conf.x);
         var plot = dc.scatterPlot(target, $(target).attr('render_group'));
         plot
             .dimension(dim).group(group)
-            .x(d3.scale.linear()).y(d3.scale.linear())
-            .elasticX(true).elasticY(true)
+            .x(d3.scale.linear()).elasticX(true)
+            .y(d3.scale.linear()).elasticY(true)
             .xAxisLabel(conf.x).yAxisLabel(conf.y);
         return plot;
     },
@@ -19,7 +21,7 @@ plot_funs.scatter =  {
         if(filter == null){
             return [];
         }else{
-            return [[conf.x, filter[0][0], filter[1][0]],[conf.y, filter[0][1], filter[1][1]]];
+            return [[conf.x, "between", [filter[0][0], filter[1][0]]],[conf.y, "between", [filter[0][1], filter[1][1]]]];
         }
     }
 }
