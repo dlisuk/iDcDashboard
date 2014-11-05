@@ -5,6 +5,10 @@ This is a repository for my UCDS MS project.  I will keep a small journal of wha
 
 The goal of the project is to create an interactive data visualization framework within iPython to ease visual analysis of large data sets.  In particular I will connect the Pandas data frame to dc.js.
 
+**November 5 2014**
+
+Implimented a dimension object to ease configureation of dimensions.  Fixed several plots to work well.  Reimplimented the JS->Python filter passage to work under the seperate dimension domain.  Added minor documentation.
+
 **October 29 2014**
 
 Modified dashboard so dimensions/groups are specified seperately from plots.  This provides greater freedom of defining data to plot.  Also defined a more robust plot class allowing customization.

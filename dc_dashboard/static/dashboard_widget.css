@@ -10,3 +10,10 @@
         width: 100%;
         clear:both;
     }
+    .title{
+        font-weight: bold;
+        text-align: center;
+    }
+    .plot_parent{
+        float:left;
+    }

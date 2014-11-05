@@ -7,11 +7,15 @@ def load_libraries():
         display(HTML("<style>" + f.read() + "</style>" +
         """<link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/dc/2.0.0-alpha.2/dc.css">"""))
 
-def load_plots():
+def link_js():
     lib_code = []
+    with open(DASHBOARD_STATIC_FILES_PATH + "/base_plot.js", 'r') as f:
+        lib_code.append(f.read())
+
     for file in os.listdir(DASHBOARD_STATIC_FILES_PATH + "/plots/"):
         with open(DASHBOARD_STATIC_FILES_PATH + "/plots/" + file) as f:
             lib_code.append(f.read())
+
     with open(DASHBOARD_STATIC_FILES_PATH + "/dashboard_widget.js", 'r') as f:
         code = f.read()
         code = code.replace("$$INSERT$$", "\n".join(lib_code))
@@ -19,5 +23,5 @@ def load_plots():
 
 
 load_libraries()
-load_plots()
+link_js()
 del os

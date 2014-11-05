@@ -1,66 +1,63 @@
 from IPython.display import display
 from widget.DashboardWidget import DashboardWidget
 import json
+import pandas as pd
 
 class Dashboard(object):
-    def __init__(self, df=None, layout=None, filter_callback=None, preproc=None):
+    def __init__(self, dims, layout, backend):
+        """
+        The primary constructor for Dashboard Widgets.
+
+        :param dims:    A list of dc_dashboard.Dimension.Dimension objects describing cross filter
+                        dimensions and groups used in the Dashboard
+        :param layout:  A json blurb describing the plots/layers to be rendered, will be replaced
+                        by objects similar to dims soon
+        :param backend: A dc_dashboard.Backend.Backend object which provides the backing data for
+                        the dashboard
+        """
         self._widget = DashboardWidget()
 
-        if filter_callback is not None:
-            filter_callback(self)
-            self._widget.on_trait_change(lambda any:filter_callback(self),"filters")
-
-        if preproc is not None:
-            self._widget.preproc = preproc
-
-        if df is not None:
-            self.set_data(df)
-
-        if layout is not None:
-            self.set_layout(layout)
-
-    def set_data(self, df, preproc=None):
-        if preproc is not None:
-            self._widget.preproc = preproc
-        self.data = df
-
-        self._widget.data = df.to_json(orient="records")
-
-    def set_layout(self, layout):
+        self._widget.on_trait_change(lambda tmp:backend.filter_changed(),"filters")
+        self._dimensions = {dim.name: dim for dim in dims}
+        self._widget.dim_code = json.dumps({dim.name: dim.get_json_object() for dim in dims})
         self._widget.layout = layout
+        backend.register_dashboard(self)
+
+    def set_data(self, data):
+        """
+        Passes data from Python -> JavaScript
+
+        :param data: a pd.core.frame.Dataframe or JSon string representing the data to be passed
+                     to java script
+        :raise ("Unknown data type"):  if an illegal type of data is passed
+        """
+        t = type(data)
+        if t == pd.core.frame.DataFrame:
+            self._widget.data = data.to_json(orient="records")
+        elif t == str:
+            self._widget.data = data
+        else:
+            raise("Unknown data type")
 
     def get_filters(self):
+        """
+        Parses the dimensional filters returned by JavaScript into column level filters usable by a backend.
+
+        :return: A list of tuples (column_name, filters) describing filters which have been applied by the client.
+                 The filters object is a list of individual filters which should be ORed together.
+                 Multiple tuples for the same column may coexist and should be ORed together.
+                 Individual filters are one of two forms, a single value which is an equivalence filter or
+                 a list of the form [min max] which describes a range filter.
+        """
         filter_json = json.loads(self._widget.filters)
-        filter_funs = [lambda df: [True for x in df.index]]
-        for j in filter_json:
-            var_name      = j[0]
-            filter_type   = j[1]
-            filter_params = j[2]
-            if filter_type == "in":
-                if type(filter_params) != "list":
-                    s = set([filter_params])
-                else:
-                    s = set(filter_params)
-                filter_funs.append((lambda v,s:lambda df:[x in s for x in df[v]])(var_name,s) )
-            elif filter_type == "between":
-                filter_funs.append((lambda v,s:lambda df:[s[0] <= x and x <= s[1] for x in df[v]])(var_name,filter_params))
-
-        def filter(df):
-            fs = [f(df) for f in filter_funs]
-            f_out = fs[0]
-            for f in fs[1:]:
-                f_out = [ x & y for x,y in zip(f_out, f)]
-            return f_out
-
-        return filter
-
-    def get_filtered_df(self):
-        filter = self.get_filters()
-        return self.data[filter(self.data)]
-
+        filter_map = {name.encode("utf8"): filters for name, filters in filter_json.iteritems() if len(filters) > 0}
+        filters = []
+        for dim, dim_filts in filter_map.iteritems():
+            filters = filters + self._dimensions[dim].proc_filters(dim_filts).items()
+        return filters
 
     def show(self):
+        """ Method to cause rendering of the widget. """
         display(self._widget)
-
 
 

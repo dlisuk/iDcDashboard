@@ -6,28 +6,27 @@ require(['//cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.11/crossfilter.min.js
             function(d3, dc, widget, WidgetManager){
                 var dashboard_id = 0;
 
-                var plot_funs = {};
-
- $$INSERT$$
+$$INSERT$$
 
                 var DashboardView = IPython.DOMWidgetView.extend({
                     render: function(){
                         //Here we construct the data stores
                         this.cf   = crossfilter([]);
-                        this.filters = {};
-                        this.dims    = [];
+                        this.dims    = {};
                         this.charts  = [];
                         this.render_group = 'dashboard_' + (dashboard_id++);
-                        this.set_layout();
+                        this.set_dimensions();
                         this.set_data();
+                        this.set_layout();
 
                         this.model.on('change:data', this.set_data, this);
                         this.model.on('change:layout', this.set_layout, this);
+                        this.model.on('change:dim_code', this.set_dimensions(), this);
                 },
 
                 set_data:function(){
-                    //First we remove old data from cross filter and add new data
-                    this.dims.forEach(function(dim){dim.filter(null);});
+                    //this is not valid to loop through keys of an object
+                    //this.dims.forEach(function(dim){dim.filter(null);});
                     this.cf.remove();
                     //Now we refresh the filters applied to all dc charts
                     this.charts.forEach(function(chart){
@@ -39,68 +38,102 @@ require(['//cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.11/crossfilter.min.js
                     });
 
                     var df = $.parseJSON(this.model.get('data'));
-                    var data = eval(this.model.get('preproc'))(df);
-                    this.cf.add(data);
+                    this.cf.add(df);
+                    this.charts.forEach(function(plot){plot.update_data()});
                     dc.redrawAll();
                 },
 
+                set_dimensions:function(){
+                    var dim_code = $.parseJSON(this.model.get('dim_code'));
+                    var this_obj = this;
+                    for(var name in dim_code){
+                        var dim = {};
+                        var dim_function = eval("(" + dim_code[name].dimension + ")");
+                        dim.dimension = this_obj.cf.dimension(dim_function);
+                        dim.dimension.dashboard_name = name;
+                        dim.groups    = { '':dim.dimension.group() };
+                        dim.groups[''].dashboard_name = '';
+                        for(var g_name in dim_code[name].groups){
+                            var group_function = eval("("+dim_code[name].groups[g_name]+")");
+                            dim.groups[g_name] = group_function(dim.dimension);
+                            dim.groups[g_name].dashboard_name = g_name;
+                        }
+                        this_obj.dims[name] = dim;
+                    }
+                },
+
                 set_layout:function(){
-                    //Clean up existing layout
-                    this.dims.forEach(function(dim){dim.dispose();});
-                    this.charts = [];
                     var $root = this.$el;
-                    $root.empty();
 
                     var layout = $.parseJSON(this.model.get('layout'));
                     var this_obj = this;
                     var $layer = null;
-                    var layer_h = null;
+                    var layer_h = 200;
 
                     for(var i in layout){
                         var plot_conf = layout[i];
                         if(plot_conf.type=="layer"){
                             $layer = $('<div />').attr('class','layer').appendTo($root);
-                            layer_h = plot_conf.height;
+                            layer_h = plot_conf.height | layer_h;
                         }else{
+                            var $plot_parent = $('<div />')
+                                .width((plot_conf.width | layer_h)+10)
+                                .attr('class','plot_parent')
+                                .appendTo($layer);
+                            var $plot_title = $('<div />')
+                                .attr('class','title')
+                                .html(plot_conf.title || "")
+                                .appendTo($plot_parent);
                             var $plot_area = $('<div />')
                                 .attr('id', this_obj.render_group + "_plot_" + i)
                                 .attr('render_group', this_obj.render_group)
-                                .appendTo($layer);
+                                .appendTo($plot_parent);
 
+                            //This isn't working, gives error object is not a function
+                            var plot = new plots[plot_conf.type];
 
-                            var plotting_obj = plot_funs[plot_conf.type];
+                            var ds = plot_conf.data_source.split("/");
+                            if(ds[0] === "cf") {
+                                var dim = this_obj.dims[ds[1]].dimension;
+                                var grp = this_obj.dims[ds[1]].groups[ds[2]];
+                                plot.set_data_source({dimemsion: dim, group: grp});
+                            }else{
+                                console.log("Bad data source field : '" + plot_conf.data_source + "'");
+                            }
+                            plot.render(this_obj, $plot_area);
+                            plot.height(layer_h);
+                            plot.width(plot_conf.width | layer_h );
 
-                            //Make cf objects
-                            var dim          = plotting_obj.make_dim(this_obj.cf, plot_conf);
-                            this.dims.push(dim);
-                            var group        = plotting_obj.make_group(dim, plot_conf);
+                            if(plot_conf.config){
+                                for(var j in plot_conf.config){
+                                    var conf_directive = plot_conf[j];
+                                    if( plot.config[conf_directive.cmd] ){
+                                        plot.config[conf_directive.cmd](conf_directive.conf);
+                                    }else{
+                                        console.log("Illegal conf_directive'" + conf_directive);
+                                    }
+                                }
+                            }
 
-                            var plot         = plotting_obj.render($plot_area[0], plot_conf, dim, group);
-                            (function(proc_filter, plot_area, conf){
-                                plot
-                                    .width(plot_conf.width).height(layer_h)
-                                    .on('filtered',function(chart,filter){
-                                        dc.events.trigger(function() {
-
-                                            this_obj.update_filter($(plot_area).attr("id"),proc_filter(filter, conf));
-                                        }, 1000);
-                                    });
-                            })(plotting_obj.proc_filter, $plot_area[0], plot_conf);
-                            this.charts.push(plot);
+                            this_obj.charts.push(plot);
                         }
                     }
                     dc.renderAll(this.render_group);
                 },
 
-                update_filter:function(plot_id, filter){
-                    dc.redrawAll(this.render_group);
-                    this.filters[plot_id] = filter;
-
-                    var filters_deduped = [];
-                    for( var i in this.filters){
-                        filters_deduped = filters_deduped.concat(this.filters[i]);
+                update_filter:function(){
+                    var filters = {};
+                    for( var i in this.charts){
+                        var chart = this.charts[i];
+                        var dim_name = chart.dimension.dashboard_name;
+                        filters[dim_name] = filters[dim_name] || [];
+                        if( chart.plot.filters().length > 0 ) {
+                            filters[dim_name] = filters[dim_name].concat(chart.plot.filters());
+                        }
                     }
-                    this.model.set("filters",JSON.stringify(filters_deduped));
+
+                    console.log(filters);
+                    this.model.set("filters",JSON.stringify(filters));
                     this.touch();
                 }
 
