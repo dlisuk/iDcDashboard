@@ -18,6 +18,7 @@ $$INSERT$$
                         this.set_dimensions();
                         this.set_data();
                         this.set_layout();
+                        this.lock = false;
 
                         this.model.on('change:data', this.set_data, this);
                         this.model.on('change:layout', this.set_layout, this);
@@ -26,21 +27,29 @@ $$INSERT$$
 
                 set_data:function(){
                     //this is not valid to loop through keys of an object
-                    //this.dims.forEach(function(dim){dim.filter(null);});
-                    this.cf.remove();
+                    var this_obj = this;
+                    for(var dim_name in this_obj.dims){
+                        this_obj.dims[dim_name].dimension.filter(null);
+                    }
                     //Now we refresh the filters applied to all dc charts
+                    this.lock = true;
                     this.charts.forEach(function(chart){
-                        var oldFilters = chart.filters();
-                        chart.filter(null);
-                        oldFilters.forEach(function(filter){
-                            chart.filter(filter);
+                        chart.oldFilters = chart.plot.filters();
+                        chart.plot.filter(null);
+                    });
+                    this.cf.remove();
+                    var df = $.parseJSON(this.model.get('data'));
+                    this.cf.add(df);
+                    this.charts.forEach(function(chart){
+                        chart.oldFilters.forEach(function(filter){
+                            chart.plot.filter(filter);
                         });
                     });
 
-                    var df = $.parseJSON(this.model.get('data'));
-                    this.cf.add(df);
-                    this.charts.forEach(function(plot){plot.update_data()});
-                    dc.redrawAll();
+                    this.lock = false;
+                    console.log("Data size: " + this.cf.size());
+                    this.charts.forEach(function(chart){chart.update_data()});
+                    dc.redrawAll(this.render_group);
                 },
 
                 set_dimensions:function(){
@@ -74,10 +83,10 @@ $$INSERT$$
                         var plot_conf = layout[i];
                         if(plot_conf.type=="layer"){
                             $layer = $('<div />').attr('class','layer').appendTo($root);
-                            layer_h = plot_conf.height | layer_h;
+                            layer_h = plot_conf.height || layer_h;
                         }else{
                             var $plot_parent = $('<div />')
-                                .width((plot_conf.width | layer_h)+10)
+                                .width((plot_conf.width || layer_h))
                                 .attr('class','plot_parent')
                                 .appendTo($layer);
                             var $plot_title = $('<div />')
@@ -102,7 +111,7 @@ $$INSERT$$
                             }
                             plot.render(this_obj, $plot_area);
                             plot.height(layer_h);
-                            plot.width(plot_conf.width | layer_h );
+                            plot.width(plot_conf.width || layer_h );
 
                             if(plot_conf.config){
                                 for(var j in plot_conf.config){
@@ -122,6 +131,9 @@ $$INSERT$$
                 },
 
                 update_filter:function(){
+                    if(this.lock){
+                        return;
+                    }
                     var filters = {};
                     for( var i in this.charts){
                         var chart = this.charts[i];
@@ -132,7 +144,6 @@ $$INSERT$$
                         }
                     }
 
-                    console.log(filters);
                     this.model.set("filters",JSON.stringify(filters));
                     this.touch();
                 }

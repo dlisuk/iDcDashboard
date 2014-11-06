@@ -4,23 +4,23 @@ import json
 import pandas as pd
 
 class Dashboard(object):
-    def __init__(self, dims, layout, backend):
+    def __init__(self, backend, dims, layout):
         """
         The primary constructor for Dashboard Widgets.
 
-        :param dims:    A list of dc_dashboard.Dimension.Dimension objects describing cross filter
-                        dimensions and groups used in the Dashboard
-        :param layout:  A json blurb describing the plots/layers to be rendered, will be replaced
-                        by objects similar to dims soon
         :param backend: A dc_dashboard.Backend.Backend object which provides the backing data for
                         the dashboard
+        :param dims:    A list of dc_dashboard.Dimension.Dimension objects describing cross filter
+                        dimensions and groups used in the Dashboard
+        :param layout:  A list of dc_dashboard.Plot.Plot/Layer objects describing the plots you
+                        wish to use
         """
         self._widget = DashboardWidget()
 
         self._widget.on_trait_change(lambda tmp:backend.filter_changed(),"filters")
         self._dimensions = {dim.name: dim for dim in dims}
         self._widget.dim_code = json.dumps({dim.name: dim.get_json_object() for dim in dims})
-        self._widget.layout = layout
+        self._widget.layout = json.dumps([plot.get_json_object() for plot in layout])
         backend.register_dashboard(self)
 
     def set_data(self, data):

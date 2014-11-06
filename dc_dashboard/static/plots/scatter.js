@@ -5,8 +5,6 @@ plots.scatter = function(){
         this.plot.dimension(this.dimension).group(this.group);
         this.plot.x(d3.scale.linear()).elasticX(true);
         this.plot.y(d3.scale.linear()).elasticY(true);
-        this.plot.yAxisPadding("10%");
-        this.plot.xAxisPadding("10%");
 
         this.master = master;
         this.$target_div = $target_div;

@@ -16,6 +16,7 @@ plots.base = {
 
 plots.base_cf = {};
 plots.base_cf.prototype = plots.base;
+plots.base_cf.update_data = function(){};
 plots.base_cf.height = function(x){this.plot.height(x);};
 plots.base_cf.width  = function(x){this.plot.width(x);};
 plots.base_cf.init_filter = function(){

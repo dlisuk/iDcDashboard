@@ -25,3 +25,9 @@ def link_js():
 load_libraries()
 link_js()
 del os
+
+#Import public components of the module
+import Backend
+from Dashboard import Dashboard
+from Dimension import Dimension,Group
+from Plot import Plot,Layer
