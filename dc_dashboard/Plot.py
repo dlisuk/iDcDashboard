@@ -7,28 +7,28 @@ class Plot(object):
                      Should correspond to a type in the static/plots directory
         """
 
-        self.json_object = {"type": type}
-        self.config_object = {}
+        self._json_object = {"type": type}
+        self._config = []
 
     def title(self, title):
         """ Define the title of the plot
         """
 
-        self.json_object["title"] = title
+        self._json_object["title"] = title
         return self
 
     def data_source(self, dim, group=""):
         """ Define the dimension and group to use.
         """
 
-        self.json_object["data_source"] = "cf/" + dim + "/" + group
+        self._json_object["data_source"] = "cf/" + dim + "/" + group
         return self
 
     def width(self, width):
         """ Define the width of hte plot
         """
 
-        self.json_object["width"] = width
+        self._json_object["width"] = width
         return self
 
     def config(self, directive, args):
@@ -39,15 +39,14 @@ class Plot(object):
         :param directive: Config function to call
         :param args: Python list to be passed to the config function
         """
-
-        self.config_object[directive] = args
+        self._config.append({"cmd": directive, "conf": args})
         return self
 
     def get_json_object(self):
         """ Helper method to convert from a dimension to a json string to send to JavaScript  """
-        if len(self.config_object) > 0:
-            self.json_object["config"] = self.config_object
-        return self.json_object
+        if len(self._config) > 0:
+            self._json_object["config"] = self._config
+        return self._json_object
 
 class Layer(object):
     def __init__(self, height):

@@ -115,7 +115,7 @@ $$INSERT$$
 
                             if(plot_conf.config){
                                 for(var j in plot_conf.config){
-                                    var conf_directive = plot_conf[j];
+                                    var conf_directive = plot_conf.config[j];
                                     if( plot.config[conf_directive.cmd] ){
                                         plot.config[conf_directive.cmd](conf_directive.conf);
                                     }else{
