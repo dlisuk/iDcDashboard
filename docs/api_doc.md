@@ -7,11 +7,13 @@
   * [Dimensions](#dimensions)
   * [Groups](#groups)
   * [Plots](#plots)
+  * [Extending](#extending)
   
 ## About
 
 IDcDashboard is an IPython notebook widget which eases integration of [dc.js](http://dc-js.github.io/dc.js/) with IPyton notebook.  It allows interactive visualization of arbitrarily sized data sets via interactive filtering.
 
+The dashboards are meant for exploratory use by data scientists and are thus weaker in the looks department vs the hand tunable d3/dc code you can get in a static page.  Nicer plots can be done via   
 
 ## Setup
 Once IDcDashboard is installed on your python library path, the followign 2 lines of code will load the library for use in your notebook.
@@ -119,3 +121,5 @@ Randomly samples exactly *max* elements from the data_frame which match the appl
 ##Groups
 
 ##Plots
+
+##Extending

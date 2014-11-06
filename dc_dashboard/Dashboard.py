@@ -1,26 +1,28 @@
 from IPython.display import display
+from IPython.html import widgets
 from widget.DashboardWidget import DashboardWidget
 import json
 import pandas as pd
 
 class Dashboard(object):
-    def __init__(self, backend, dims, layout):
+    def __init__(self, backend, dimensions, plots):
         """
         The primary constructor for Dashboard Widgets.
 
-        :param backend: A dc_dashboard.Backend.Backend object which provides the backing data for
-                        the dashboard
-        :param dims:    A list of dc_dashboard.Dimension.Dimension objects describing cross filter
-                        dimensions and groups used in the Dashboard
-        :param layout:  A list of dc_dashboard.Plot.Plot/Layer objects describing the plots you
-                        wish to use
+        :param backend:    A dc_dashboard.Backend.Backend object which provides the backing data for
+                           the dashboard
+        :param dimensions: A list of dc_dashboard.Dimension.Dimension objects describing cross filter
+                           dimensions and groups used in the Dashboard
+        :param plots:      A list of dc_dashboard.Plot.Plot/Layer objects describing the plots you
+                           wish to use
         """
+        self._backend = backend
         self._widget = DashboardWidget()
 
         self._widget.on_trait_change(lambda tmp:backend.filter_changed(),"filters")
-        self._dimensions = {dim.name: dim for dim in dims}
-        self._widget.dim_code = json.dumps({dim.name: dim.get_json_object() for dim in dims})
-        self._widget.layout = json.dumps([plot.get_json_object() for plot in layout])
+        self._dimensions = {dim.name: dim for dim in dimensions}
+        self._widget.dim_code = json.dumps({dim.name: dim.get_json_object() for dim in dimensions})
+        self._widget.layout = json.dumps([plot.get_json_object() for plot in plots])
         backend.register_dashboard(self)
 
     def set_data(self, data):
@@ -59,5 +61,14 @@ class Dashboard(object):
     def show(self):
         """ Method to cause rendering of the widget. """
         display(self._widget)
+
+        buttons = self._backend.get_toolbar()
+        if buttons is not None:
+            toolbar = widgets.ContainerWidget()
+            toolbar.children = buttons
+            display(toolbar)
+            toolbar.remove_class('vbox')
+            toolbar.add_class('hbox')
+
 
 

@@ -1,9 +1,8 @@
-masters_project
-===============
-
-This is a repository for my UCDS MS project.  I will keep a small journal of what I'm doing in this readme.
-
 The goal of the project is to create an interactive data visualization framework within iPython to ease visual analysis of large data sets.  In particular I will connect the Pandas data frame to dc.js.
+
+**November 6 2014**
+
+Added ability for a backend to specify a set of toolbar widgets that will be displayed below the plotting area.  Added this functionality for filtering/resampling on the sampling df backend.
 
 **November 5 2014**
 

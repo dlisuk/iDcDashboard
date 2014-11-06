@@ -10,6 +10,13 @@ plots.bar = function(){
         this.$target_div = $target_div;
         this.init_filter();
 
+        this.config = {};
+        this.config.parent = this;
+        this.config.prototype = this.prototype.config;
+        this.config.domain = function(range){
+            var the_plot = this.parent.plot;
+            the_plot.elasticX(false).x(d3.scale.linear().domain(range));
+        };
     };
 };
 
