@@ -85,21 +85,41 @@ $$INSERT$$
                             $layer = $('<div />').attr('class','layer').appendTo($root);
                             layer_h = plot_conf.height || layer_h;
                         }else{
+                            var plot = new plots[plot_conf.type];
+
                             var $plot_parent = $('<div />')
                                 .width((plot_conf.width || layer_h))
                                 .attr('class','plot_parent')
                                 .appendTo($layer);
-                            var $plot_title = $('<div />')
-                                .attr('class','title')
-                                .html(plot_conf.title || "")
-                                .appendTo($plot_parent);
                             var $plot_area = $('<div />')
                                 .attr('id', this_obj.render_group + "_plot_" + i)
                                 .attr('render_group', this_obj.render_group)
+                                .attr('master',plot)
                                 .appendTo($plot_parent);
+                            $('<span />')
+                                .attr('class','title')
+                                .html(plot_conf.title || "")
+                                .appendTo($plot_area);
+                            /*TODO: Reset link to reset filter for induvidual plot, may note be needed
+                            $('<a />')
+                                .attr('class','reset')
+                                .attr('href','javascript:$("#' + this_obj.render_group + "_plot_" + i + '").master.plot.filterAll();dc.redrawAll(' + this_obj.render_group + ');')
+                                .attr('style','display: none;')
+                                .html("reset")
+                                .appendTo($plot_area);
+                                */
+                            $('<span />')
+                                .attr('class','reset')
+                                .attr('style','display: none;')
+                                .html(' | Current filter:  <span class="filter"></span>')
+                                .appendTo($plot_area);
+                            $('<div />')
+                                .attr('class','clearfix')
+                                .appendTo($plot_area);
+
+
 
                             //This isn't working, gives error object is not a function
-                            var plot = new plots[plot_conf.type];
 
                             var ds = plot_conf.data_source.split("/");
                             if(ds[0] === "cf") {
