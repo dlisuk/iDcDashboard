@@ -7,7 +7,9 @@ The goal of the project is to create an interactive data visualization framework
 
 **November 5 2014**
 
-Implimented a dimension object to ease configureation of dimensions.  Fixed several plots to work well.  Reimplimented the JS->Python filter passage to work under the seperate dimension domain.  Added minor documentation.
+Implimented a dimension object to ease configureation of dimensions.  Fixed several plots to work well.  Reimplimented the JS->Python filter passage to work under the seperate dimension domain.  
+
+Added Python docstrings for all public methods.  Implimented plot/layer DSL so no more json config.  Got filtering to work.  Initial weather analysis demo.
 
 **October 29 2014**
 
