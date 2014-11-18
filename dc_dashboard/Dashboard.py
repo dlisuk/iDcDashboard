@@ -60,8 +60,6 @@ class Dashboard(object):
 
     def show(self):
         """ Method to cause rendering of the widget. """
-        display(self._widget)
-
         buttons = self._backend.get_toolbar()
         if buttons is not None:
             toolbar = widgets.ContainerWidget()
@@ -69,6 +67,4 @@ class Dashboard(object):
             display(toolbar)
             toolbar.remove_class('vbox')
             toolbar.add_class('hbox')
-
-
-
+        display(self._widget)
