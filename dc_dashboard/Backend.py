@@ -2,6 +2,8 @@ from IPython.html import widgets
 
 import pandas as pd
 import numpy as np
+import requests
+
 
 class Backend(object):
     def register_dashboard(self, dashboard):
@@ -149,3 +151,10 @@ class Callback_Backend(Backend):
         if self.onFilter is not None:
             self.onFilter()
 
+class HTTP_Backend(Backend):
+    def __init__(self, url):
+        r = requests.get(url)
+        self.data = r.text
+
+    def register_dashboard(self, dashboard):
+        dashboard.set_data(self.data)

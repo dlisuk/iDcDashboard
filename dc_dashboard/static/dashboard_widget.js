@@ -34,16 +34,20 @@ $$INSERT$$
                     //Now we refresh the filters applied to all dc charts
                     this.lock = true;
                     this.charts.forEach(function(chart){
-                        chart.oldFilters = chart.plot.filters();
-                        chart.plot.filter(null);
+                        if(chart.plot){
+                          chart.oldFilters = chart.plot.filters();
+                          chart.plot.filter(null);
+                        }
                     });
                     this.cf.remove();
                     var df = $.parseJSON(this.model.get('data'));
                     this.cf.add(df);
                     this.charts.forEach(function(chart){
-                        chart.oldFilters.forEach(function(filter){
-                            chart.plot.filter(filter);
-                        });
+                        if(chart.plot){
+                          chart.oldFilters.forEach(function(filter){
+                              chart.plot.filter(filter);
+                          });
+                        }
                     });
 
                     this.lock = false;

@@ -29,7 +29,6 @@ plots.base_cf.init_filter = function(){
 };
 
 plots.base_cf.set_data_source = function(ds){
-    console.log(ds);
     this.dimension = ds.dimemsion;
     this.group     = ds.group;
 };

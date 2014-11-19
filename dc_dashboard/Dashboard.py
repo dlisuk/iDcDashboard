@@ -36,10 +36,8 @@ class Dashboard(object):
         t = type(data)
         if t == pd.core.frame.DataFrame:
             self._widget.data = data.to_json(orient="records")
-        elif t == str:
-            self._widget.data = data
         else:
-            raise("Unknown data type")
+            self._widget.data = data
 
     def get_filters(self):
         """

@@ -5,7 +5,8 @@ from IPython.display import display, Javascript, HTML
 def load_libraries():
     with open(DASHBOARD_STATIC_FILES_PATH + "/dashboard_widget.css", 'r') as f:
         display(HTML("<style>" + f.read() + "</style>" +
-        """<link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/dc/2.0.0-alpha.2/dc.css">"""))
+        """<link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/dc/2.0.0-alpha.2/dc.css">"""
+        ))
 
 def link_js():
     lib_code = []
