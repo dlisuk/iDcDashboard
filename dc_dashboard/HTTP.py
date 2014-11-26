@@ -2,6 +2,7 @@ from Backend import Backend
 import requests
 import json
 from IPython.html import widgets
+import time
 
 class HTTP_Backend(Backend):
     def __init__(self, url, dataset, n = 1000):
@@ -47,9 +48,13 @@ class HTTP_Backend(Backend):
             while status == 202:
                 response = requests.get(target)
                 status = response.status_code
+                time.sleep(0.5)
 
             if status == 200:
                 data = response.text
+            else:
+                print response.status_code
+                print response.text
             requests.delete(target)
         return data
 
