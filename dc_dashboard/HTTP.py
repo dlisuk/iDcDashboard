@@ -5,18 +5,19 @@ from IPython.html import widgets
 import time
 
 class HTTP_Backend(Backend):
-    def __init__(self, url, dataset, n = 1000):
-        self.root_url  = url
-        self.url       = url + dataset
+    def __init__(self, url, dataset, n=1000, post_proc=None):
+        self.gen_url   = url + "/make/" + dataset
+        self.get_url   = url + "/result/"
         self.db        = None
         self.n         = n
+        self.post_proc = post_proc
         self.filters   = "{}"
         self.data      = self._get_data()
 
         self._b_resamp = widgets.ButtonWidget(description='Resample')
         self._b_resamp.on_click(lambda w:self._resample_data())
 
-        self._toolbar=[self._b_resamp]
+        self._toolbar = [self._b_resamp]
 
     def get_toolbar(self):
         return self._toolbar
@@ -39,11 +40,11 @@ class HTTP_Backend(Backend):
 
     def _get_data(self):
         parms = {"method":"sample", "n":str(self.n),"filter":self.filters}
-        response = requests.post(self.url, parms)
+        response = requests.post(self.gen_url, parms)
 
         data = "[]"
         if response.status_code == 200:
-            target = self.root_url + "data/" + response.content
+            target = self.get_url + response.content
             status = 202
             while status == 202:
                 response = requests.get(target)
@@ -56,6 +57,10 @@ class HTTP_Backend(Backend):
                 print response.status_code
                 print response.text
             requests.delete(target)
+
+        if self.post_proc is not None:
+            data = self.post_proc(data)
+
         return data
 
     def _lock_buttons(self):
