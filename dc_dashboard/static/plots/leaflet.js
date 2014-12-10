@@ -5,7 +5,7 @@ require(["http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"])
   /* global dc, L */
   dc.leafletChart = function (_chart) {
       "use strict";
-      _chart = dc.baseChart(_chart);
+      _chart = dc.baseMixin(_chart);
 
       var _map;
 
@@ -518,6 +518,7 @@ plots.leaflet = function(){
         this.plot.center([0,0]);
         this.plot.zoom(1);
         this.plot.filterByArea(true);
+        this.plot.valueAccessor(function(d){return d.value.n});
         this.plot.icon(function(d,map){
 
           var radius = d.value.rad || 10;
