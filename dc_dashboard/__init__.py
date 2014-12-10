@@ -4,8 +4,10 @@ from IPython.display import display, Javascript, HTML
 
 def load_libraries():
     with open(DASHBOARD_STATIC_FILES_PATH + "/dashboard_widget.css", 'r') as f:
-        display(HTML("<style>" + f.read() + "</style>" +
-        """<link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/dc/2.0.0-alpha.2/dc.css">"""
+        display(HTML(
+            """<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />"""+
+            """<link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/dc/2.0.0-alpha.2/dc.css">""" +
+            "<style>" + f.read() + "</style>"
         ))
 
 def link_js():
