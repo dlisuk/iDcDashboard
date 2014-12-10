@@ -1,5 +1,7 @@
 plots.bubble = function(){
     this.render = function(master, $target_div){
+        console.log("bubble");
+
         this.master = master;
         this.$target_div = $target_div;
 
@@ -8,6 +10,10 @@ plots.bubble = function(){
         this.plot.dimension(this.dimension).group(this.group);
         this.plot.x(d3.scale.linear()).elasticX(true);
         this.plot.y(d3.scale.linear()).elasticY(true);
+        this.plot.keyAccessor(function(d){return d.key[0];});
+        this.plot.valueAccessor(function(d){return d.key[1];});
+        this.plot.colorAccessor(function(d){return d.value.c});
+        this.plot.radiusValueAccessor(function(d){return d.value.r});
 
         this.master = master;
         this.$target_div = $target_div;
@@ -24,6 +30,7 @@ plots.bubble = function(){
             var the_plot = this.parent.plot;
             the_plot.elasticY(false).y(d3.scale.linear().domain(range));
         };
+        console.log("bubble");
     };
 };
 plots.bubble.prototype = plots.base_cf;

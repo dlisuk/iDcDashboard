@@ -1,5 +1,5 @@
 require(['//cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.11/crossfilter.min.js']);
-    require(["//cdnjs.cloudflare.com/ajax/libs/d3/3.4.1/d3.min.js",
+    require(["//cdnjs.cloudflare.com/ajax/libs/d3/3.4.8/d3.min.js",
              "//cdnjs.cloudflare.com/ajax/libs/dc/2.0.0-alpha.2/dc.min.js",
             "widgets/js/widget",
             "widgets/js/manager"],
@@ -27,6 +27,7 @@ $$INSERT$$
 
                 set_data:function(){
                     //this is not valid to loop through keys of an object
+                    var time = performance.now();
                     var this_obj = this;
                     for(var dim_name in this_obj.dims){
                         this_obj.dims[dim_name].dimension.filter(null);
@@ -51,7 +52,6 @@ $$INSERT$$
                     });
 
                     this.lock = false;
-                    console.log("Data size: " + this.cf.size());
                     this.charts.forEach(function(chart){chart.update_data()});
                     dc.redrawAll(this.render_group);
                 },
@@ -152,6 +152,8 @@ $$INSERT$$
                         }
                     }
                     dc.renderAll(this.render_group);
+                    this_obj.charts.forEach(function(p){p.post_render();});
+                    dc.redrawAll(this.render_group);
                 },
 
                 update_filter:function(){

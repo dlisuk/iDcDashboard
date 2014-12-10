@@ -5,6 +5,7 @@ plots.bar = function(){
         this.plot = dc.barChart($target_div[0], render_group);
         this.plot.dimension(this.dimension).group(this.group);
         this.plot.x(d3.scale.linear()).elasticX(true);
+        this.plot.y(d3.scale.linear()).elasticY(true);
 
         this.master = master;
         this.$target_div = $target_div;

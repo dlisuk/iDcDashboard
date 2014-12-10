@@ -10,6 +10,7 @@ plots.base = {
 
     height:function(x){},
     width:function(x){},
+    post_render:function(){},
 
     config:{}
 };
@@ -27,6 +28,7 @@ plots.base_cf.init_filter = function(){
         },1000)
     });
 };
+plots.base_cf.post_render = function(){},
 
 plots.base_cf.set_data_source = function(ds){
     this.dimension = ds.dimemsion;
