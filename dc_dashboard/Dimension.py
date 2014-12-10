@@ -47,7 +47,10 @@ class Dimension():
             x_filter = []
             y_filter = []
             for a in filter:
-                if type(a[0]) == list:
+                if type(a) == dict:
+                    x_filter.append([a["_southWest"]["lat"],a["_northEast"]["lat"]])
+                    y_filter.append([a["_southWest"]["lng"],a["_northEast"]["lng"]])
+                elif type(a[0]) == list:
                     x_filter.append([a[0][0], a[1][0]])
                     y_filter.append([a[0][1], a[1][1]])
                 else:
