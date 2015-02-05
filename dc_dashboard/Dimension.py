@@ -1,6 +1,6 @@
 
 class Dimension():
-    def __init__(self, x_field, y_field = None, name_override = None):
+    def __init__(self, x_field, y_field = None, name_override = None, filter_on = False):
         """
         A crossfilter dimension for data you wish to plot
 
@@ -18,6 +18,7 @@ class Dimension():
 
         self.x_field = x_field
         self.y_field = y_field
+        self.filter_on = filter_on
         self.groups = {}
 
     def get_json_object(self):
@@ -43,6 +44,9 @@ class Dimension():
         Converts a filter on this dimension to filters on the dimension's fields.
         Primarily used by system rather than user.
         """
+        if not self.filter_on:
+            return {}
+
         if self.y_field is not None:
             x_filter = []
             y_filter = []

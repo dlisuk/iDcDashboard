@@ -19,11 +19,17 @@ class Dashboard(object):
         self._backend = backend
         self._widget = DashboardWidget()
 
-        self._widget.on_trait_change(lambda tmp:backend.filter_changed(),"filters")
+        self._widget.on_trait_change(lambda tmp:self.update_fitlers(), "filters")
         self._dimensions = {dim.name: dim for dim in dimensions}
         self._widget.dim_code = json.dumps({dim.name: dim.get_json_object() for dim in dimensions})
         self._widget.layout = json.dumps([plot.get_json_object() for plot in plots])
+        self._filters = {}
         backend.register_dashboard(self)
+
+    def update_fitlers(self):
+        new_filters = self.get_filters()
+        if not new_filters == self._filters:
+            self._backend.filter_changed()
 
     def set_data(self, data):
         """
